@@ -59,13 +59,14 @@ contract Voting is Ownable {
         emit WorkflowStatusChange(pnum, state);
     }
     
+    // Afficher le statut actuel de la session de vote.
     function getWorkflowStatus() public view returns(WorkflowStatus) {
         return state;
     }
     
     // L'administrateur du vote enregistre une liste blanche d'électeurs identifiés par leur adresse Ethereum.
     function addVoterToWhitelist(address _x) public onlyOwner {
-        // vérifier adresse déjà enregistrée
+        require(!voters[_x].isRegistered, "Adresse deja enregistree");
         whitelist.push(_x);
         voters[_x].isRegistered = true;
         emit VoterRegistered(_x);
@@ -85,12 +86,11 @@ contract Voting is Ownable {
     }
     
     // Créer une liste des propositions enregistées.
-    function setPropositions() public isInWhitelist returns(string[] memory) {
+    function setPropositions() public isInWhitelist {
         require(state != WorkflowStatus.RegisteringVoters && state != WorkflowStatus.ProposalsRegistrationStarted, "Session d'enregistrement des propositions non termiee");
         for(uint i = 1; i <= ID; i++) {
             allProposals.push(proposals[i].description);
         }
-        return allProposals;
     }
     
     // Afficher la liste des propositions enregistées.
