@@ -48,7 +48,7 @@ contract Voting is Ownable {
     event Voted (address voter, uint proposalId);
     
     modifier isInWhitelist() {
-        require(voters[msg.sender].isRegistered == true, "Vous n'etes pas enregistre comme electeur");
+        require(voters[msg.sender].isRegistered == true, unicode"Vous n'êtes pas enregistré comme électeur");
         _;
     }
     
@@ -66,7 +66,7 @@ contract Voting is Ownable {
     
     // L'administrateur du vote enregistre une liste blanche d'électeurs identifiés par leur adresse Ethereum.
     function addVoterToWhitelist(address _x) public onlyOwner {
-        require(!voters[_x].isRegistered, "Adresse deja enregistree");
+        require(!voters[_x].isRegistered, unicode"Adresse déjà enregistrée");
         whitelist.push(_x);
         voters[_x].isRegistered = true;
         emit VoterRegistered(_x);
@@ -79,7 +79,7 @@ contract Voting is Ownable {
     
     // Les électeurs inscrits sont autorisés à enregistrer leurs propositions pendant que la session d'enregistrement est active.
     function addProposition(string memory _description) public isInWhitelist {
-        require(state == WorkflowStatus.ProposalsRegistrationStarted, "Session d'enregistrement des propositions inactive");
+        require(state == WorkflowStatus.ProposalsRegistrationStarted, unicode"Session d'enregistrement des propositions inactive");
         ID++;
         proposals[ID].description = _description;
         emit ProposalRegistered(ID);
@@ -87,7 +87,7 @@ contract Voting is Ownable {
     
     // Créer une liste des propositions enregistées.
     function setPropositions() public isInWhitelist {
-        require(state != WorkflowStatus.RegisteringVoters && state != WorkflowStatus.ProposalsRegistrationStarted, "Session d'enregistrement des propositions non termiee");
+        require(state != WorkflowStatus.RegisteringVoters && state != WorkflowStatus.ProposalsRegistrationStarted, unicode"Session d'enregistrement des propositions non termiée");
         for(uint i = 1; i <= ID; i++) {
             allProposals.push(proposals[i].description);
         }
@@ -100,9 +100,9 @@ contract Voting is Ownable {
     
     // Les électeurs inscrits votent pour leurs propositions préférées.
     function vote(uint _proposalID) public isInWhitelist{
-        require(state == WorkflowStatus.VotingSessionStarted, "Session d'enregistrement des votes inactive");
-        require(!voters[msg.sender].hasVoted, "Deja vote");
-        require(_proposalID > 0 &&_proposalID <= ID, "Proposition inconnue");
+        require(state == WorkflowStatus.VotingSessionStarted, unicode"Session d'enregistrement des votes inactive");
+        require(!voters[msg.sender].hasVoted, unicode"Déjà voté");
+        require(_proposalID > 0 &&_proposalID <= ID, unicode"Proposition inconnue");
         voters[msg.sender].hasVoted = true;
         voters[msg.sender].votedProposalId = _proposalID;
         proposals[_proposalID].voteCount++;
@@ -112,7 +112,7 @@ contract Voting is Ownable {
     
     // L'administrateur du vote comptabilise les votes.
     function countAllVotes() public onlyOwner {
-        require(state == WorkflowStatus.VotingSessionEnded, "Session d'enregistrement des votes non termiee");
+        require(state == WorkflowStatus.VotingSessionEnded, unicode"Session d'enregistrement des votes non termiée");
         uint winner = 0;
         for(uint i = 1; i <= ID; i++) {
             if(proposals[i].voteCount > proposals[i-1].voteCount) {
@@ -130,7 +130,7 @@ contract Voting is Ownable {
     
     // Retourner le(s) gagnant(s) - Tout le monde peut vérifier les derniers détails de la proposition gagnante.
     function getWinner() public view isInWhitelist returns(Proposal[] memory) {
-        require(state == WorkflowStatus.VotesTallied, "Les votes ne sont pas encore comptabilises");
+        require(state == WorkflowStatus.VotesTallied, unicode"Les votes ne sont pas encore comptabilisés");
         return winningProposalId;
     }
 
